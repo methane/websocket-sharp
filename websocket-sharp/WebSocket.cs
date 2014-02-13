@@ -1513,6 +1513,10 @@ namespace WebSocketSharp
       Opcode opcode, byte [] data, Dictionary<CompressionMethod, byte []> cache)
     {
       lock (_forSend) {
+        // When broadcasting, sending to closed session should be skipped without error.
+        // This check should be inner locking WebSocket.
+        if (_readyState != WebSocketState.OPEN)
+          return;
         try {
           byte [] cached;
           if (!cache.TryGetValue (_compression, out cached)) {
